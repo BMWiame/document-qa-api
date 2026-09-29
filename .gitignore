@@ -1,0 +1,8 @@
+.env
+venv/
+__pycache__/
+uploads/
+*.pyc
+daily_test_state.json
+daily_test_log.txt
+daily_test_paper.txt
