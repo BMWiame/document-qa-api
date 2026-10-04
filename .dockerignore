@@ -1,0 +1,37 @@
+# Python virtual environments & caches
+
+.venv/
+venv/
+env/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Git history
+.git/
+.gitignore
+
+# Secrets & local config
+.env
+.env.*
+
+# Local uploaded/stored data & models
+**/*.pdf
+**/*.csv
+data/
+uploads/
+vector_db/
+
+# Docker files themselves
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# IDE & OS metadata
+.vscode/
+.idea/
+.DS_Store

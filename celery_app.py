@@ -1,8 +1,10 @@
 from celery import Celery
+import os
+broker_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
 celery_app = Celery(
     "document_qa",
-    broker="redis://localhost:6379/0",
-    backend="redis://localhost:6379/0",
+    broker=broker_url,
+    backend=broker_url,
     include=["tasks"],
 )

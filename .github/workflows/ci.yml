@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: action/checkout@v4
+
+      - name: Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check all modules import cleanly
+        run: |
+          python -c "import database, models, extract, embed, processing, search, generate, celery_app, tasks"
+      
+      - name: Build Docker image
+        run: docker build -t docqa-app:ci-test .
