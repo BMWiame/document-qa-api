@@ -12,7 +12,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN useradd --create-home appuser
 
 WORKDIR /app
-
+RUN pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cpu
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install -r requirements.txt
