@@ -16,7 +16,8 @@ RUN pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cpu
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install -r requirements.txt
-
+ENV NLTK_DATA=/usr/share/nltk_data
+RUN python -c "import nltk; nltk.download('punkt_tab', download_dir='/usr/share/nltk_data')"
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')"
 COPY --chown=appuser:appuser . .
 

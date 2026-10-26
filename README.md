@@ -1,5 +1,7 @@
 # Document Q&A API
 
+![CI](https://github.com/BMWiame/document-qa-api/actions/workflows/ci.yml/badge.svg)
+
 A backend service that lets you upload documents (PDF/TXT) and ask natural-language questions about their content, using retrieval-augmented generation (RAG).
 
 ## How it works

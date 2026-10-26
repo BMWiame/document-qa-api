@@ -39,12 +39,14 @@ def upload_paper(paper):
         response = requests.post(f"{API_URL}/documents/upload", files={"file": f})
     doc_id = response.json()["id"]
 
-    while True:
+    for _ in range(100):  # ~5 min
         status = requests.get(f"{API_URL}/documents/{doc_id}/status").json()["status"]
         if status == "done":
-            break
+            return doc_id
+        if status == "failed":
+            raise RuntimeError("Processing failed, check celery_worker logs")
         time.sleep(3)
-    return doc_id
+    raise TimeoutError("Document never finished processing")
 
 
 def check_verdict(your_answer, reference_answers):
@@ -55,6 +57,8 @@ def check_verdict(your_answer, reference_answers):
             if c and c.lower() in your_answer_lower:
                 return f"LIKELY CORRECT (matched: '{c}')"
     return "NEEDS REVIEW (no direct match found — read manually)"
+
+
 
 
 def main():

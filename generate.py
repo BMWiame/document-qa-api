@@ -1,38 +1,66 @@
-from dotenv import  load_dotenv
 import os
-import google.generativeai as genai
-load_dotenv()
-api_key= os.environ.get("GEMINI_API_KEY")
-genai.configure(api_key=api_key)
+from dotenv import load_dotenv
+from google import genai
+from google.genai import types
 
-model = genai.GenerativeModel("gemini-flash-latest")
+load_dotenv()
+
+# Initialize the Gemini client (automatically reads GEMINI_API_KEY from environment)
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+
+# Use Gemini 2.5 Flash for high throughput, low latency, and free-tier access
+MODEL_NAME = "gemini-3.8-flash"
 
 
 def generate_answer(question: str, chunks: list[str]) -> str:
-    sources_text = "\n\n".join(f"Source {i+1}: {chunk}" for i, chunk in enumerate(chunks))
+    sources_text = "\n\n".join(
+        f"--- CHUNK {i+1} ---\n{chunk}" for i, chunk in enumerate(chunks)
+    )
 
-    prompt = f"""Answer the question using only the information in the sources below.
-If the answer isn't in the sources, say you don't know.
+    prompt = f"""You are a strict factual document search engine. 
 
+Rules:
+1. Answer the question relying ONLY on the clear facts directly mentioned in the Context below.
+2. Do NOT use any external knowledge, general definitions, or pre-trained memory.
+3. Do NOT extrapolate, speculate, or infer beyond what is explicitly stated.
+4. If the exact answer cannot be directly extracted from the provided Context, reply with exact text: "I don't know."
+
+Context:
 {sources_text}
 
-Question: {question}"""
+Question: {question}
+Answer:"""
 
     try:
-        response = model.generate_content(prompt)
-        return response.text
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.0,  # Forces strict, non-creative context extraction
+            ),
+        )
+        return response.text.strip() if response.text else "I don't know."
     except Exception as e:
-        if "RESOURCE_EXHAUSTED" in str(e) or "429" in str(e):
-            return "Daily API quota reached. Try again after the quota resets."
-        return f"Error generating answer: {e}"
+        return f"Error: {e}"
+
 
 def expand_query(question: str) -> list[str]:
     prompt = f"""Generate 3 alternative ways to phrase this question, using different words and specific terms that might appear in a document containing the answer. Return only the 3 alternatives, one per line, no numbering.
 
 Question: {question}"""
+
     try:
-        response = model.generate_content(prompt)
-        alternatives = [line.strip() for line in response.text.split("\n") if line.strip()]
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.7,
+            ),
+        )
+        raw_text = response.text or ""
+        alternatives = [
+            line.strip() for line in raw_text.split("\n") if line.strip()
+        ]
         return [question] + alternatives
     except Exception:
         return [question]
