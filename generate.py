@@ -6,7 +6,13 @@ from google.genai import types
 load_dotenv()
 
 # Initialize the Gemini client (automatically reads GEMINI_API_KEY from environment)
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+_client = None
+
+def get_client():
+    global _client
+    if _client is None:
+        _client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    return _client
 
 # Use Gemini 2.5 Flash for high throughput, low latency, and free-tier access
 MODEL_NAME = "gemini-3.8-flash"
