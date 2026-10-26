@@ -38,7 +38,7 @@ Question: {question}
 Answer:"""
 
     try:
-        response = client.models.generate_content(
+        response = _client.models.generate_content(
             model=MODEL_NAME,
             contents=prompt,
             config=types.GenerateContentConfig(
@@ -56,7 +56,7 @@ def expand_query(question: str) -> list[str]:
 Question: {question}"""
 
     try:
-        response = client.models.generate_content(
+        response = _client.models.generate_content(
             model=MODEL_NAME,
             contents=prompt,
             config=types.GenerateContentConfig(
